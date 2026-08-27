@@ -51,23 +51,32 @@ function burstHearts(){
   for(let i=0;i<28;i++) setTimeout(createHeart,i*55);
 }
 
-// Tiny original ambient sound generated in the browser; no copyrighted audio file.
-let audioCtx=null, playing=false, interval=null;
-function playTone(){
-  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
-  osc.type="sine"; osc.frequency.value=[261.63,329.63,392,523.25][Math.floor(Math.random()*4)];
-  gain.gain.setValueAtTime(.0001,audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.035,audioCtx.currentTime+.05);
-  gain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+1.4);
-  osc.connect(gain).connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime+1.5);
-}
-document.getElementById("musicBtn").addEventListener("click",()=>{
-  if(!playing){
-    playing=true; playTone(); interval=setInterval(playTone,1800);
-    document.querySelector("#musicBtn span").textContent="Pause";
-  }else{
-    playing=false; clearInterval(interval);
-    document.querySelector("#musicBtn span").textContent="Musik";
+// ============================================================
+// BACKGROUND MUSIC
+// ============================================================
+const musicBtn = document.getElementById("musicBtn");
+const musicLabel = musicBtn.querySelector("span");
+
+const backgroundMusic = new Audio("assets/Taylor%20Swift%20-%20Lover.mp3");
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.5;
+
+let playing = false;
+
+musicBtn.addEventListener("click", async () => {
+  try {
+    if (!playing) {
+      await backgroundMusic.play();
+      playing = true;
+      musicLabel.textContent = "Pause";
+      musicBtn.setAttribute("aria-label", "Pause musik");
+    } else {
+      backgroundMusic.pause();
+      playing = false;
+      musicLabel.textContent = "Musik";
+      musicBtn.setAttribute("aria-label", "Putar musik");
+    }
+  } catch (error) {
+    console.error("Musik gagal diputar:", error);
   }
 });
